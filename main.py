@@ -17,8 +17,6 @@ def fetch_order_info():
     url = f'{SHOPIFY_STORE_URL}/admin/api/2025-01/orders.json'
     response = requests.get(url, headers=SHOPIFY_HEADER_VALUES)
 
-    print(response.json())
-
     if response.status_code == 200:
         orders = response.json().get('orders', [])
         total_sales = '₦' + str(sum(float(order['total_price']) for order in orders))
@@ -54,8 +52,6 @@ def generate_store_report():
 
 def send_report_to_google_chat():
     report_message = generate_store_report()
-
-    print(report_message)
     
     message_payload = {
         "text": report_message
