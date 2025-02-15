@@ -1,20 +1,21 @@
+from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
-import requests, os
+import requests, os, json
 
 load_dotenv()
 
 SHOPIFY_STORE_URL = os.getenv('STORE_URL')
-API_KEY = os.getenv('API_KEY')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')  
-SECRET_KEY= os.getenv('SECRET_KEY') 
-HEADER_VALUES = {
+WEBHOOK_URL = os.getenv('WEBHOOK_URL')
+
+SHOPIFY_HEADER_VALUES = {
     'Content-Type': 'application/json', 
     'X-Shopify-Access-Token': ACCESS_TOKEN
 }
 
 def fetch_order_info():
     url = f'{SHOPIFY_STORE_URL}/admin/api/2025-01/reports.json'
-    response = requests.get(url, headers=HEADER_VALUES)
+    response = requests.get(url, headers=SHOPIFY_HEADER_VALUES)
 
     if response.status_code == 200:
         orders = response.json().get('orders', [])
@@ -27,7 +28,7 @@ def fetch_order_info():
 
 def fetch_store_name():
     url = f'{SHOPIFY_STORE_URL}/admin/api/2025-01/shop.json'
-    response = requests.get(url, headers=HEADER_VALUES)
+    response = requests.get(url, headers=SHOPIFY_HEADER_VALUES)
 
     if response.status_code == 200:
         store_name = response.json().get('shop', {}).get('name', "Your Shopify Store")
@@ -49,6 +50,24 @@ def generate_store_report():
 
     return store_report
 
+def send_report_to_google_chat():
+    report_message = generate_store_report()
+
+    print(report_message)
+    
+    message_payload = {
+        "text": report_message
+    }
+    
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    requests.post(WEBHOOK_URL, headers=headers, data=json.dumps(message_payload))
+
+
 if __name__ == "__main__":
-    reports_data = generate_store_report()
-    print("Reports Data:", reports_data)
+    # Runs daily at 09:00 AM
+    scheduler = BlockingScheduler()
+    scheduler.add_job(send_report_to_google_chat, 'cron', hour=9, minute=0)
+    scheduler.start()
