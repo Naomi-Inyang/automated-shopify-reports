@@ -13,6 +13,10 @@ SHOPIFY_HEADER_VALUES = {
     'X-Shopify-Access-Token': ACCESS_TOKEN
 }
 
+STORE_REPORT_HEADER_VALUES = {
+    'Content-Type': 'application/json'
+}
+
 def fetch_order_info():
     url = f'{SHOPIFY_STORE_URL}/admin/api/2025-01/orders.json'
     response = requests.get(url, headers=SHOPIFY_HEADER_VALUES)
@@ -57,11 +61,12 @@ def send_report_to_google_chat():
         "text": report_message
     }
     
-    headers = {
-        'Content-Type': 'application/json'
-    }
+    response = requests.post(WEBHOOK_URL, headers=STORE_REPORT_HEADER_VALUES, data=json.dumps(message_payload))
 
-    requests.post(WEBHOOK_URL, headers=headers, data=json.dumps(message_payload))
+    if response.status_code == 200:
+        print('Successfully sent store report')
+    else:
+        print('Something went wrong')
 
 
 if __name__ == "__main__":
