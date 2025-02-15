@@ -19,7 +19,7 @@ def fetch_order_info():
 
     if response.status_code == 200:
         orders = response.json().get('orders', [])
-        total_sales = '₦' + str(sum(float(order['total_price']) for order in orders))
+        total_sales = '$' + str(sum(float(order['total_price']) for order in orders))
         total_orders = len(orders)
     else:
         total_sales, total_orders = 'Currently Unavailable', 'Currently Unavailable'
