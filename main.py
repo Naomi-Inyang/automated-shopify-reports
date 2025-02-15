@@ -19,10 +19,10 @@ def fetch_order_info():
 
     if response.status_code == 200:
         orders = response.json().get('orders', [])
-        total_sales = sum(float(order['total_price']) for order in orders)
+        total_sales = '$' + sum(float(order['total_price']) for order in orders)
         total_orders = len(orders)
     else:
-        total_sales, total_orders = 0, 0
+        total_sales, total_orders = 'Currently Unavailable', 'Currently Unavailable'
 
     return total_sales, total_orders
 
@@ -44,7 +44,7 @@ def generate_store_report():
     store_report = f'''
         🚀 *Shopify Report for {shop_name}* 🚀
 
-        💰 *Total Sales MTD:* ${total_sales}  
+        💰 *Total Sales MTD:* {total_sales}  
         📦 *Total Orders MTD:* {total_orders}  
     '''
 
