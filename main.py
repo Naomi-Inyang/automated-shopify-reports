@@ -14,12 +14,14 @@ SHOPIFY_HEADER_VALUES = {
 }
 
 def fetch_order_info():
-    url = f'{SHOPIFY_STORE_URL}/admin/api/2025-01/reports.json'
+    url = f'{SHOPIFY_STORE_URL}/admin/api/2025-01/orders.json'
     response = requests.get(url, headers=SHOPIFY_HEADER_VALUES)
+
+    print(response.json())
 
     if response.status_code == 200:
         orders = response.json().get('orders', [])
-        total_sales = '$' + sum(float(order['total_price']) for order in orders)
+        total_sales = '₦' + str(sum(float(order['total_price']) for order in orders))
         total_orders = len(orders)
     else:
         total_sales, total_orders = 'Currently Unavailable', 'Currently Unavailable'
